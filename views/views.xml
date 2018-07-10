@@ -1,0 +1,105 @@
+<odoo>
+  <data>
+    <!-- Top menu item -->
+    
+    <menuitem name="Quản lý sinh viên" id="qlsv.menu_root"/>
+
+
+    <!-- menu categories -->
+    
+    <menuitem name="Sinh viên" id="qlsv.sinh_vien" parent="qlsv.menu_root"/>
+
+    <menuitem name="Khoa" id="qlsv.khoa" parent="qlsv.menu_root"/>
+
+
+    <record model="ir.ui.view" id="qlsv.thong_tin_sinh_vien_list">
+      <field name="name">Danh sách sinh viên</field>
+      <field name="model">qlsv.thong_tin_sinh_vien</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="ma_sinh_vien"/>
+          <field name="ten_sinh_vien"/>
+          <field name="khoa"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="qlsv.thong_tin_sinh_vien_form">
+      <field name="name">form</field>
+      <field name="model">qlsv.thong_tin_sinh_vien</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+            <field name="hinh_anh" widget="image" class="oe_avatar" />
+            <div class="oe_title">
+              <label for="ten_sinh_vien" class="oe_edit_only"/>
+              <h1>
+                <field name="ten_sinh_vien" placeholder="Ten sinh vien" required="True" />
+              </h1>
+            </div>
+            <notebook>
+              <page name="public" string="Thong tin co ban">
+                <group>
+                  <group>
+                    <field name="ma_sinh_vien" />
+                    <field name="khoa" />
+                    <field name="lop" />
+                  </group>
+                  <group>
+                    <field name="nam_nhap_hoc"/>
+                    <field name="nam_tot_nghiep_du_kien" />
+                  </group>
+                </group>
+              </page>
+              <page name="diem" string="Bang diem">
+                <group>
+                  <field name="tong_so_tin_chi_hoan_thanh" />
+                  <field name="danh_sach_diem" widget="one2many_list" readonly="1"/>
+                </group>
+              </page>
+            </notebook>
+          </sheet>
+          <div class="oe_chatter">
+            <field name="message_follower_ids" widget="mail_followers"/>
+            <field name="message_ids" widget="mail_thread"/>
+          </div>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="qlsv.action_window_sinh_vien">
+      <field name="name">Danh sách sinh viên</field>
+      <field name="res_model">qlsv.thong_tin_sinh_vien</field>
+      <field name="view_mode">tree,form</field>
+      <field name="help" type="html" >
+        <p class="oe_view_nocontent_create">
+          Thêm mới sinh viên
+        </p>
+      </field>
+    </record>
+   
+    <menuitem name="Ds sinh viên" id="qlsv.danh_sach_sinh_vien" parent="qlsv.sinh_vien"
+              action="qlsv.action_window_sinh_vien"/>
+
+    <record model="ir.ui.view" id="qlsv.danh_sach_diem_tree">
+      <field name="name">Danh Sach diem</field>
+      <field name="model">qlsv.diem</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="ma_mon_hoc"/>
+          <field name="ma_sv"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="qlsv.action_window_diem">
+      <field name="name">Danh sach diem</field>
+      <field name="res_model">qlsv.diem</field>
+      <field name="view_model">tree,form</field>
+    </record>
+
+    <menuitem name="Ds Điểm" id="qlsv.danh_sach_diem" parent="qlsv.sinh_vien"
+              action="qlsv.action_window_diem"/>
+   
+  </data>
+</odoo>
