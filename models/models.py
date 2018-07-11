@@ -4,6 +4,7 @@ from odoo import models, fields, api
 
 from odoo import exceptions
 import logging
+import datetime
 
 _logger = logging.getLogger(__name__)
 
@@ -11,10 +12,38 @@ class khoa(models.Model):
     _name = 'qlsv.khoa'
     _rec_name = 'ten_khoa'
 
-    ma_khoa = fields.Char('Mã khoa')
     ten_khoa = fields.Char('Tên khoa')
+    ma_khoa = fields.Char('Mã khoa')
     so_nam_toi_thieu_tot_nghiep = fields.Integer('Số năm tối thiểu tốt nghiệp')
+
+    _sql_constraints = [
+        ('ma_khoa_unique', 'unique (ma_khoa)', 'Ma khoa da ton tai!')
+    ]
     
+class lop(models.Model):
+    _name = 'qlsv.lop'
+    _rec_name = 'ten_lop'
+    
+    ma_lop = fields.Char(string="Ma lop", required=True)
+    ten_lop = fields.Char(string="Ten lop", compute="_get_ten_lop")
+    ma_khoa = fields.Many2one('qlsv.khoa', required=True)
+
+    _sql_constraints = [
+        ('ma_lop_unique', 'unique (ma_lop)', 'Ma lop da ton tai!')
+    ]
+
+    @api.depends('ma_khoa', 'ma_lop')
+    def _get_ten_lop(self):
+        for item in self:
+            ma_khoa = item.env['qlsv.khoa'].search([('id', '=', item.ma_khoa.id)]).ma_khoa
+            item.ten_lop = str(ma_khoa) + " - " + str(item.ma_lop)
+
+
+    # @api.multi
+    # def _get_ten_lop(self):
+    #     for item in self:
+    #         ten_khoa_viet_tat = self.env['qlsv.khoa'].search([('id', '=', item.ma_khoa.id)]).ma_khoa
+            
 
 class mon_hoc(models.Model):
     _name = 'qlsv.mon_hoc' 
@@ -27,6 +56,12 @@ class mon_hoc(models.Model):
     he_so_diem_thi = fields.Integer(string='Hệ số thi')
     hocky = fields.Char('Học kỳ')
     so_tin_chi = fields.Integer('Số tín chỉ')
+
+
+    _sql_constraints = [
+        ('ma_mon_hoc_unique', 'unique (ma_mon_hoc)', 'Ma mon hoc da ton tai!')
+    ]
+
 
     @api.multi
     def get_ma_mon_hoc(self):
@@ -80,38 +115,84 @@ class diem(models.Model):
             item.xep_loai = loai_diem
 
 
-class sinh_vien(models.Model):
-    _name = 'qlsv.sinh_vien'
-    _rec_name = 'ten_sinh_vien'
-
-    ma_sinh_vien = fields.Char('Mã sinh viên')
-    ten_sinh_vien = fields.Char('Tên sinh viên')
-    hinh_anh = fields.Binary('Hình ảnh')
-    khoa = fields.Many2one('qlsv.khoa',required=True, string='Khoa')
-    lop = fields.Char('Lớp')
-    nam_nhap_hoc = fields.Char(string='Năm nhập học')
-    
-    
-
 class thong_tin_sinh_vien(models.Model):
     _name = 'qlsv.thong_tin_sinh_vien'
-    _inherit = ['qlsv.sinh_vien', 'mail.thread']
+    _rec_name = 'ten_sinh_vien'
 
-
-    danh_sach_diem = fields.One2many('qlsv.diem', 'id', string='Danh sách điểm')
-    nam_tot_nghiep_du_kien = fields.Char(string="Năm tốt nghiệp", compute='get_nam_tot_nghiep_du_kien')
-    tong_so_tin_chi_hoan_thanh = fields.Integer('Tổng số tín chỉ', compute='_cap_nhat_so_tin_chi')
-
+    ma_sinh_vien = fields.Char('Mã sinh viên', required=True)
+    ten_sinh_vien = fields.Char('Tên sinh viên')
+    hinh_anh = fields.Binary('Hình ảnh')
+    nam_nhap_hoc = fields.Char(string='Năm nhập học', required=True)
     
-    @api.depends('khoa', 'nam_nhap_hoc')
+    _sql_constraints = [
+        ('ma_sinh_vien_unique', 'unique (ma_sinh_vien)', 'Ma sinh vien da ton tai!')
+    ]
+
+
+class sinh_vien(models.Model):
+    _name = 'qlsv.sinh_vien'
+    _inherit = ['qlsv.thong_tin_sinh_vien', 'mail.thread']
+
+    khoa = fields.Many2one('qlsv.khoa',required=True, string='Khoa')
+    lop = fields.Many2one('qlsv.lop', required=True)
+    danh_sach_diem = fields.One2many('qlsv.diem', 'id', string='Danh sách điểm')
+    nam_tot_nghiep_du_kien = fields.Char(string="Năm tốt nghiệp")
+    tong_so_tin_chi_hoan_thanh = fields.Integer('Tổng số tín chỉ', compute='_cap_nhat_so_tin_chi')
+    nghi_hoc = fields.Boolean(string="Nghi hoc", default=False)
+
+    # @api.multi
+    # def _get_ma_sinh_vien(self):
+    #     for item in self:
+    #         list_khoa = self.
+            
+
+    @api.constrains('khoa', 'lop')
+    @api.multi
+    def _check_lop_in_khoa(self):
+        for item in self:
+            check_khoa_of_lop = item.env['qlsv.lop'].search([('id', '=', item.lop.id)]).ma_khoa
+            if check_khoa_of_lop.id != item.khoa.id:
+                raise exceptions.ValidationError("Lop hoc khong phu hop voi khoa!")
+            else:
+                print('errrr!')
+
+    # @api.constrains('nam_nhap_hoc')
+    # @api.multi
+    # def rule_nam_nhap_hoc(self):
+    #     for item in self:
+    #         now_year = datetime.date.today().year
+    #         try:
+    #             if int(item.nam_nhap_hoc) < 1900:
+    #                 raise exceptions.ValidationError('Nam nhap hoc khong duoc truoc nam 1900')
+    #             elif int(item.nam_nhap_hoc) > now_year:
+    #                 raise exceptions.ValidationError('Nam nhap hoc khong duoc lon hon nam nay!')
+    #         except:
+    #             item.nam_nhap_hoc = False
+    #             raise exceptions.ValidationError('Nam nhap hoc khong phai la so!')
+
+    @api.onchange('khoa', 'nam_nhap_hoc')
     @api.multi
     def get_nam_tot_nghiep_du_kien(self):
         for item in self:
-            if item.khoa == False:
-                item.nam_tot_nghiep_du_kien = 'Nope'
-            else:
-                so_nam = item.env['qlsv.khoa'].search([('id', '=', item.khoa.id)]).so_nam_toi_thieu_tot_nghiep
-                item.nam_tot_nghiep_du_kien = str(int(item.nam_nhap_hoc) + so_nam)
+            now_year = datetime.date.today().year
+            if item.nam_nhap_hoc != False:
+                try:
+                    nam_nhap_hoc = int(item.nam_nhap_hoc)
+                except ValueError:
+                    raise exceptions.ValidationError('Nam nhap hoc khong phai la so!')
+
+                if nam_nhap_hoc < 1900:
+                    raise exceptions.ValidationError('Nam nhap hoc khong duoc truoc nam 1900')
+                elif nam_nhap_hoc > now_year:
+                    raise exceptions.ValidationError('Nam nhap hoc khong duoc lon hon nam nay!')
+                if item.khoa == False:
+                    item.nam_tot_nghiep_du_kien = 'Nope'
+                elif item.nam_nhap_hoc == False:
+                    item.nam_tot_nghiep_du_kien == 'Nope'
+                else:
+                    so_nam = item.env['qlsv.khoa'].search([('id', '=', item.khoa.id)]).so_nam_toi_thieu_tot_nghiep
+                    item.nam_tot_nghiep_du_kien = str(nam_nhap_hoc + so_nam)
+
 
     @api.multi
     def _cap_nhat_so_tin_chi(self):
@@ -126,8 +207,29 @@ class thong_tin_sinh_vien(models.Model):
                     if mon_hoc.ma_khoa.id == item.khoa.id: 
                         tong_tin = tong_tin + mon_hoc.so_tin_chi
             item.tong_so_tin_chi_hoan_thanh = tong_tin
-    
 
 
+class giao_vien(models.Model):
+    _name = "qlsv.giao_vien"
+    _rec_name = 'ten_giao_vien'
+
+    tai_khoan = fields.Many2one('res.users', string="Tai khoan", required=True)
+    ma_giao_vien = fields.Char(string="Ma giao vien")
+    ten_giao_vien = fields.Char(string="Ten giao vien")
+    ma_khoa = fields.Many2one('qlsv.khoa', required=True)
+    lop_chu_nhiem = fields.Many2one('qlsv.lop', reuqired=True)
     
-    
+    _sql_constraints = [
+        ('ma_giao_vien_unique', 'unique (ma_giao_vien)', 'Ma giao vien da ton tai!')
+    ]
+
+    @api.constrains('ma_khoa', 'lop_chu_nhiem')
+    @api.multi
+    def _check_lop_chu_nhiem_in_khoa(self):
+        for item in self:
+            check_khoa_of_lop = item.env['qlsv.lop'].search([('id', '=', item.lop_chu_nhiem.id)]).ma_khoa
+            if check_khoa_of_lop.id != item.ma_khoa.id:
+                raise exceptions.ValidationError("Lop hoc khong phu hop voi khoa!")
+            else:
+                print('errrr!')
+

@@ -2,31 +2,120 @@
   <data>
     <!-- Top menu item -->
     
-    <menuitem name="Quản lý sinh viên" id="qlsv.menu_root"/>
+    <menuitem 
+      name="Student" 
+      id="qlsv.menu_root" 
+      web_icon="qlsv,static/src/img/icon.png"/>
 
 
     <!-- menu categories -->
     
-    <menuitem name="Sinh viên" id="qlsv.sinh_vien" parent="qlsv.menu_root"/>
+    
 
-    <menuitem name="Khoa" id="qlsv.khoa" parent="qlsv.menu_root"/>
+    <menuitem 
+      name="Quản lý khoa" 
+      id="qlsv.quan_ly_khoa" 
+      parent="qlsv.menu_root"/>
+
+
+    <menuitem 
+      name="Khoa"
+      id="qlsv.khoa"
+      parent="qlsv.quan_ly_khoa"/>
+
+
+    <record model="ir.ui.view" id="qlsv.view_mon_hoc_tree">
+        <field name="name=">Mon Hoc Tree</field>
+        <field name="model">qlsv.mon_hoc</field>
+        <field name="arch" type="xml">
+          <tree>
+            <field name="ma_mon_hoc"/>
+            <field name="ten_mon_hoc"/>
+          </tree>
+        </field>
+    </record>
+
+    
+    <record model="ir.actions.act_window" id="qlsv.action_mon_hoc">
+      <field name="name">Danh sách môn hoc</field>
+      <field name="res_model">qlsv.mon_hoc</field>
+      <field name="view_model">tree,form</field>
+    </record>
+
+    <menuitem 
+      name="Môn học"
+      id="qlsv.mon_hoc"
+      parent="qlsv.quan_ly_khoa"
+      action="qlsv.action_mon_hoc"
+      sequence="100"/>
+
+
+    <record model="ir.ui.view" id="qlsv.view_giao_vien_tree">
+        <field name="name=">Giao Vien Tree</field>
+        <field name="model">qlsv.giao_vien</field>
+        <field name="arch" type="xml">
+          <tree>
+            <field name="ma_giao_vien"/>
+            <field name="ten_giao_vien"/>
+          </tree>
+        </field>
+    </record>
+
+
+    <record model="ir.actions.act_window" id="qlsv.action_giao_vien">
+      <field name="name">Danh sách giáo viên</field>
+      <field name="res_model">qlsv.giao_vien</field>
+      <field name="view_model">tree,form</field>
+    </record>
+
+    <menuitem
+      name="Giáo viên"
+      id="qlsv.giao_vien"
+      parent="qlsv.quan_ly_khoa"
+      action="qlsv.action_giao_vien"
+      sequence="10"/>
+
+
+    <!-- <record model="ir.ui.view" id="qlsv.view_lop_tree">
+      <field name="name">Lop Tree</field>
+      <field name="res_model">qlsv.lop</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="ma_lop"/>
+          <field name="ten_lop"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="qlsv.action_lop">
+      <field name="name">Danh sách lop</field>
+      <field name="res_model">qlsv.lop</field>
+      <field name="view_model">tree,form</field>
+    </record> -->
+
+
+    <menuitem 
+      name="Quản lý lớp"
+      id="qlsv.quan_ly_lop"
+      parent="qlsv.menu_root"/>
 
 
     <record model="ir.ui.view" id="qlsv.thong_tin_sinh_vien_list">
       <field name="name">Danh sách sinh viên</field>
-      <field name="model">qlsv.thong_tin_sinh_vien</field>
+      <field name="model">qlsv.sinh_vien</field>
       <field name="arch" type="xml">
         <tree>
           <field name="ma_sinh_vien"/>
           <field name="ten_sinh_vien"/>
           <field name="khoa"/>
+          <field name="lop"/>
         </tree>
       </field>
     </record>
 
     <record model="ir.ui.view" id="qlsv.thong_tin_sinh_vien_form">
       <field name="name">form</field>
-      <field name="model">qlsv.thong_tin_sinh_vien</field>
+      <field name="model">qlsv.sinh_vien</field>
       <field name="arch" type="xml">
         <form>
           <sheet>
@@ -69,7 +158,7 @@
 
     <record model="ir.actions.act_window" id="qlsv.action_window_sinh_vien">
       <field name="name">Danh sách sinh viên</field>
-      <field name="res_model">qlsv.thong_tin_sinh_vien</field>
+      <field name="res_model">qlsv.sinh_vien</field>
       <field name="view_mode">tree,form</field>
       <field name="help" type="html" >
         <p class="oe_view_nocontent_create">
@@ -78,8 +167,16 @@
       </field>
     </record>
    
-    <menuitem name="Ds sinh viên" id="qlsv.danh_sach_sinh_vien" parent="qlsv.sinh_vien"
-              action="qlsv.action_window_sinh_vien"/>
+
+    <menuitem
+      name="Sinh viên"
+      id="qlsv.sinh_vien"
+      parent="qlsv.quan_ly_lop"
+      action="qlsv.action_window_sinh_vien"/>
+
+
+
+    <!-- Danh sach diem cua sinh vien -->
 
     <record model="ir.ui.view" id="qlsv.danh_sach_diem_tree">
       <field name="name">Danh Sach diem</field>
@@ -98,7 +195,7 @@
       <field name="view_model">tree,form</field>
     </record>
 
-    <menuitem name="Ds Điểm" id="qlsv.danh_sach_diem" parent="qlsv.sinh_vien"
+    <menuitem name="Ds Điểm" id="qlsv.danh_sach_diem" parent="qlsv.menu_root"
               action="qlsv.action_window_diem"/>
    
   </data>
