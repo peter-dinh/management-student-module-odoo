@@ -209,6 +209,7 @@ class sinh_vien(models.Model):
             item.tong_so_tin_chi_hoan_thanh = tong_tin
 
 
+
 class giao_vien(models.Model):
     _name = "qlsv.giao_vien"
     _rec_name = 'ten_giao_vien'
@@ -233,3 +234,9 @@ class giao_vien(models.Model):
             else:
                 print('errrr!')
 
+
+class giao_vien(models.Model):
+    _inherit = "res.users"
+
+    def get_teacher(self):
+        return self.env['qlsv.giao_vien'].search([('tai_khoan', '=', self.id)], limit=1)

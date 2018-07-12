@@ -10,8 +10,6 @@
 
     <!-- menu categories -->
     
-    
-
     <menuitem 
       name="Quản lý khoa" 
       id="qlsv.quan_ly_khoa" 

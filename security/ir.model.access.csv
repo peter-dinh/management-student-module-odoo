@@ -1,2 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_qlsv_qlsv,qlsv.qlsv,model_qlsv_qlsv,,1,0,0,0
+access_lop,"Quản lý lớp",model_qlsv_lop,group_giao_vien_user,1,0,0,0
+access_sinh_vien,"Quản lý sinh viên",model_qlsv_sinh_vien,group_giao_vien_user,1,0,0,0
+access_giao_vien,"Thông tin cá nhân",model_qlsv_giao_vien,group_giao_vien_user,1,0,0,0

@@ -27,6 +27,8 @@
         'views/views.xml',
         'views/templates.xml',
         'views/view_report.xml',
+        'security/qlsv_security.xml',
+        'security/ir.model.access.csv',
     ],
     # only loaded in demonstration mode
     'demo': [

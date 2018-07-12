@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record model="ir.module.category" id="module_category_teacher">
+            <field name="name">Teacher</field>
+            <field name="description">It's description</field>
+            <field name="sequence">10</field>
+        </record>
+    <record id="group_giao_vien_user" model="res.groups">
+        <field name="name">Giao vien</field>
+        <field name="category_id" ref="module_category_teacher"/>
+    </record>
+    
+    <record id="group_giao_vien_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="category_id" ref="module_category_teacher"/>
+        <field name="implied_ids" eval="[(4,ref('group_giao_vien_user'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <data noupdate="0">
+        <record model="ir.rule" id="teacher_user_rule">
+            <field name="name">Giáo viên: Chỉ được thấy học sinh trong lớp</field>
+            <field name="model_id" ref="model_qlsv_sinh_vien"/>
+            <field name="groups" eval="[(4, ref('group_giao_vien_user'))]"/>
+            <field name="domain_force">[('lop', '=', [user.get_teacher().lop_chu_nhiem.id])]</field>
+        </record>
+
+        <record model="ir.rule" id="teacher_class_rule">
+            <field name="name">Giáo viên chỉ được thấy một lớp</field>
+            <field name="model_id" ref="model_qlsv_lop"/>
+            <field name="groups" eval="[(4, ref('group_giao_vien_user'))]"/>
+            <field name="domain_force">[('id', '=', [user.get_teacher().lop_chu_nhiem.id])]</field>
+        </record>
+
+
+        <record model="ir.rule" id="teacher_info_rule">
+            <field name="name">Giáo viên chỉ được xem thông tin của mình</field>
+            <field name="model_id" ref="model_qlsv_giao_vien"/>
+            <field name="groups" eval="[(4, ref('group_giao_vien_user'))]"/>
+            <field name="domain_force">[('id', '=', [user.get_teacher().id])]</field>
+        </record>
+    </data>
+
+</odoo>
